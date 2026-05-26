@@ -143,3 +143,21 @@ Chromium-only is correct for this project. Adding Firefox and WebKit becomes wor
 
 **4. Historical test reporting**
 The current dashboard shows results for the most recent run only. Adding trend tracking (pass rate over time, flake frequency per test) requires persisting `test-results/results.json` across runs — either committed to a `reports/` branch in git, stored in CI artifacts, or pushed to a lightweight time-series store. A Grafana dashboard over those results would give the team visibility into test health over sprints, not just per-run.
+
+**5. LLM-powered natural language test actions**
+For applications with highly dynamic UIs — where locators change frequently and maintenance cost is high — the interaction layer can be replaced with LLM-driven actions. Instead of writing `page.getByRole('button', { name: 'Sign in' }).click()`, a test would read:
+
+```ts
+await ai('click the sign in button', { page });
+await ai('fill the email field with user@test.com', { page });
+```
+
+How it works under the hood:
+1. A screenshot of the current page is captured
+2. The screenshot + plain English instruction is sent to an LLM (Claude, GPT-4o, etc.)
+3. The LLM returns a structured JSON response — `{ action: "click", selector: "button[name='Sign in']" }`
+4. Playwright executes the action using that selector
+
+The open-source library `@zerostep/playwright` already implements this pattern as a drop-in for Playwright. Alternatively it can be built in-house by wiring Playwright's screenshot API directly to an LLM API.
+
+The trade-off: every test action incurs an LLM API call, which adds latency and cost per test run. For a stable application like Conduit, semantic locators (`getByRole`, `getByPlaceholder`) are faster and free. The right trigger for this approach is a UI that changes so frequently that locator maintenance is costing the team more time than the LLM API cost — typically rapid-iteration product teams shipping UI changes multiple times a week.
