@@ -102,6 +102,26 @@ Specify compilerOption '"ignoreDeprecations": "6.0"' to silence this error.
 
 ---
 
+## 8. Custom HTML dashboard with Chart.js
+
+**Prompt (paraphrased):** The Playwright HTML report is too basic. Add a dashboard view with pie charts — no Allure, use the existing reporter infrastructure.
+
+**What Claude planned first:** Two options — (A) JSON reporter + custom script, (B) Playwright custom reporter. I chose Option A because it preserves the existing `playwright-report/index.html` untouched and the script is a single file with no extra dependencies beyond Chart.js via CDN.
+
+**What Claude confirmed before building:** I asked Claude to describe exactly what the dashboard would show before touching any code — stat cards, chart types, table columns, footer link. Once I approved the description, it implemented.
+
+**What Claude implemented:**
+- Added `['json', { outputFile: 'test-results/results.json' }]` to the reporter array in `playwright.config.ts`
+- Wrote `scripts/generate-dashboard.js` (CommonJS, no dependencies, 200 lines)
+- Added `npm run dashboard` and `npm run test:dashboard` scripts to `package.json`
+- Added `dashboard.html` to `.gitignore` (generated artifact, not committed)
+
+**One deliberate scoping call:** The dashboard reads the JSON from the most recent run only — no historical trend data. I asked Claude to keep it stateless for now (no database, no file accumulation). That decision is documented in DECISIONS.md #9.
+
+**Verification:** Claude ran `npm test` (41 passed), then `node scripts/generate-dashboard.js`, then opened `dashboard.html` in the browser to confirm the charts rendered correctly before committing.
+
+---
+
 ## What I did not use AI for
 
 - The content of `DECISIONS.md` — I wrote the reasoning myself. Claude drafted a structure but the architectural judgements (why POM over inline selectors, why single-worker, the CI note) came from my own experience.

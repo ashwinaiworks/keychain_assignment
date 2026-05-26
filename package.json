@@ -14,7 +14,9 @@
     "test:feed": "playwright test --grep @feed",
     "test:smoke": "playwright test --grep @smoke",
     "report": "playwright show-report",
-    "lint": "eslint lib tests global-setup.ts"
+    "lint": "eslint lib tests global-setup.ts",
+    "dashboard": "node scripts/generate-dashboard.js",
+    "test:dashboard": "playwright test && node scripts/generate-dashboard.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",

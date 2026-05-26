@@ -73,6 +73,27 @@ Opens the Playwright HTML report in your browser. The report is also written to 
 
 ---
 
+## Dashboard (visual summary)
+
+```bash
+npm run dashboard          # generate after npm test
+npm run test:dashboard     # run tests + generate in one step
+open dashboard.html        # open in browser
+```
+
+Generates `dashboard.html` — a standalone page with:
+
+- **4 stat cards** — Total, Passed, Failed, Skipped + pass rate %
+- **Doughnut chart** — overall Passed / Failed / Skipped split
+- **Stacked bar chart** — pass/fail breakdown per feature tag
+- **Results table** — every test, with status badge, feature tag, layer tag, duration
+- **Inline error expansion** — click any failed row to see the error message
+- **Link** back to the full Playwright HTML report (with trace viewer)
+
+The dashboard reads `test-results/results.json` written by Playwright's JSON reporter. It is a generated artifact — `dashboard.html` is git-ignored and rebuilt after each test run.
+
+---
+
 ## Test accounts
 
 A fixed account is created automatically by the test setup:

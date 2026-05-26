@@ -2,5 +2,6 @@ node_modules/
 test-results/
 playwright-report/
 blob-report/
+dashboard.html
 .DS_Store
 .env

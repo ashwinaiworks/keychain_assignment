@@ -11,7 +11,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: 0,
   workers: 1,
-  reporter: [['html', { open: 'never' }], ['list']],
+  reporter: [
+    ['html', { open: 'never' }],
+    ['list'],
+    ['json', { outputFile: 'test-results/results.json' }],
+  ],
 
   // Where Playwright writes screenshots, traces, and videos on failure.
   // Documented here so agents know where to look when a test breaks.

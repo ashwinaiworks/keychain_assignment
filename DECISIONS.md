@@ -98,6 +98,26 @@ Six decisions that shaped the framework. For each: what I chose, what I rejected
 
 ---
 
+## 9. Custom dashboard over Allure for visual reporting
+
+**Chosen:** A 120-line Node.js script (`scripts/generate-dashboard.js`) that reads Playwright's built-in JSON reporter output (`test-results/results.json`) and produces a standalone `dashboard.html` with Chart.js charts. Run with `npm run dashboard` after `npm test`, or in one step with `npm run test:dashboard`.
+
+**Rejected:** Allure. Allure requires a separate Java runtime, a dedicated Allure binary, and a different report format. It adds a non-trivial dependency for a gain that the Chart.js approach covers for this project's scale. Allure shines in multi-team, multi-suite environments with history tracking across hundreds of runs.
+
+**Rejected also:** Modifying the Playwright HTML reporter itself. The built-in report is intentionally preserved — the custom dashboard is a separate file (`dashboard.html`) that complements it, not replaces it. Teams that want the full trace viewer and attachment links still open `playwright-report/index.html`.
+
+**What the dashboard shows:**
+- Four stat cards: Total, Passed, Failed, Skipped + pass rate %
+- Overall doughnut chart (Passed / Failed / Skipped split)
+- Per-feature stacked bar chart (@auth, @articles, @comments, @favourites, @feed, @profile)
+- Full results table: status badge, test name, feature tags, layer tag, duration
+- Clicking a failed row expands the error message inline
+- Footer link back to the full Playwright HTML report
+
+**What would flip it:** If the team wanted historical trend lines across multiple CI runs (pass rate over time, flake frequency by test). That requires storing results somewhere persistent — a database or a CI artifact store — and a server-side aggregation step. At that point Allure's history plugin or a proper observability tool (Grafana + InfluxDB) is the right call.
+
+---
+
 ## Out of scope note: CI/CD
 
 I'd add a GitHub Actions workflow with a single job: install Conduit, start it in the background, run `npm test`, upload the Playwright HTML report as an artifact. The Conduit app's `npm start` is blocking by default so the job would need a small wrapper (`npm start &` + a wait-for-port step before running tests). I kept this out of the submission because it requires knowledge of where the Conduit repo lives relative to the CI runner — an assumption I didn't want to encode without a real deployment target.
