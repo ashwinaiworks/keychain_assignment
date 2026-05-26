@@ -11,7 +11,7 @@ import { ArticleFactory } from '../../lib/factories/article.factory';
 // ---------------------------------------------------------------------------
 
 test.describe('Create article', { tag: ['@articles', '@ui'] }, () => {
-  test('logged-in user can publish a new article', async ({ loggedInPage }) => {
+  test('logged-in user can publish a new article', { tag: '@smoke' }, async ({ loggedInPage }) => {
     const { page } = loggedInPage;
     const editor = new EditorPage(page);
     const title = `UI Article ${Date.now()}`;

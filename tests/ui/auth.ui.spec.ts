@@ -9,7 +9,7 @@ import { UserFactory } from '../../lib/factories/user.factory';
 // ---------------------------------------------------------------------------
 
 test.describe('Registration flow', { tag: ['@auth', '@ui'] }, () => {
-  test('new user can register and lands on the home feed', async ({ page }) => {
+  test('new user can register and lands on the home feed', { tag: '@smoke' }, async ({ page }) => {
     const credentials = UserFactory.buildCredentials();
     const registerPage = new RegisterPage(page);
     const homePage = new HomePage(page);

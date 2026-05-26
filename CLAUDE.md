@@ -25,6 +25,7 @@ lib/
   factories/
     user.factory.ts   ← Creates users via API. Use this to make test accounts.
     article.factory.ts← Creates articles via API. Use this for test data.
+    comment.factory.ts← Creates comments via API. Use this instead of addComment().
   pages/
     login.page.ts     ← Page object for /login
     register.page.ts  ← Page object for /register
@@ -40,7 +41,10 @@ tests/
     *.ui.spec.ts      ← Browser tests using page objects
 
 global-setup.ts       ← Runs once before all tests. Seeds the fixed test user.
-playwright.config.ts  ← Single Chromium project, points at localhost:4101
+playwright.config.ts  ← Single Chromium project, timeouts, baseURL from .env
+.env.example          ← Copy to .env to override BASE_URL / API_URL
+eslint.config.mjs     ← Linting rules (no-floating-promises, no-explicit-any)
+tests/README.md       ← Spec map — read this before writing a new test
 ```
 
 ---
@@ -122,13 +126,48 @@ test.describe('Login flow', { tag: ['@auth', '@ui'] }, () => { ... });
 test.describe('Comments', () => { ... });
 ```
 
-**Available feature tags:** `@auth` · `@articles` · `@comments` · `@favourites` · `@feed`
+**Available feature tags:** `@auth` · `@articles` · `@comments` · `@favourites` · `@feed` · `@profile`
 
 **Layer tags:** `@api` (no browser) · `@ui` (browser test)
 
-Add a new feature tag if you are covering a new domain (e.g. `@profile`, `@follows`). Document it in this file under the tag table below.
+**`@smoke` tag:** Add `{ tag: '@smoke' }` to the single most critical test in each new spec file. This test is included in `npm run test:smoke` — the fast pre-commit sanity check.
 
-### 8. Assert on the HTTP status, not on error message strings
+Add a new feature tag if you are covering a new domain. Document it in `tests/README.md`.
+
+### 8. Use `test.step()` in multi-action tests
+
+Wrap logically distinct phases in `test.step()`. This makes failure traces and the HTML report human-readable without changing test logic.
+
+```ts
+// ✅ correct — steps show in the report and trace viewer
+const { article } = await test.step('create article', () =>
+  ArticleFactory.create(authApi.client),
+);
+await test.step('delete it', () =>
+  authApi.client.deleteArticle(article.slug),
+);
+
+// ❌ no steps — failure message just says "line 42 failed"
+const { article } = await ArticleFactory.create(authApi.client);
+await authApi.client.deleteArticle(article.slug);
+```
+
+### 9. Use `expect.soft()` for multi-field response checks
+
+When verifying multiple fields on a single response, use `expect.soft()` so all failures are reported at once instead of stopping at the first.
+
+```ts
+// ✅ collects all failures in one run
+expect.soft(user.email).toBe(credentials.email);
+expect.soft(user.username).toBe(credentials.username);
+expect.soft(user.token).toBeTruthy();
+
+// ❌ stops at the first failure — other fields unknown
+expect(user.email).toBe(credentials.email);
+expect(user.username).toBe(credentials.username);
+```
+
+### 10. Assert on the HTTP status, not on error message strings
 
 ```ts
 // ✅ correct

@@ -90,6 +90,18 @@ Specify compilerOption '"ignoreDeprecations": "6.0"' to silence this error.
 
 ---
 
+## 7. Best-practice improvements — smoke tags, env config, ESLint, test.step, soft assertions, comment factory, tests/README
+
+**Prompt (paraphrased):** Implement all 12 best-practice improvements — @smoke tags, profiles test, dotenv env config, lib/api README, test.step() in complex tests, expect.soft() for multi-field checks, comment factory, explicit timeouts, tests/README, ESLint, outputDir config, and update all docs.
+
+**What Claude did well:** Implemented all 12 items in sequence without mixing concerns. The `CommentFactory` import was flagged as unused immediately by the IDE diagnostic before it was wired into the tests — Claude caught it in the same turn and replaced all inline `addComment()` calls with `CommentFactory` methods. The `eslint.config.mjs` format (flat config) was correctly chosen for the ESLint version installed (v10), which does not support the legacy `.eslintrc` format.
+
+**One mistake caught:** Claude initially added `test.step()` only to `articles.api.spec.ts`. The profiles test (`profiles.api.spec.ts`) was written with `test.step()` from the start — but this inconsistency meant some multi-action tests in the original files had no steps while the new file did. I asked Claude to apply `test.step()` uniformly to all multi-action tests in the session, and it updated the comment delete and unfavourite tests as well.
+
+**My input on scope:** The decision to apply `expect.soft()` only to multi-field response checks (not to all assertions everywhere) was mine. Claude suggested using it broadly; I narrowed the scope to places where seeing all field failures at once is genuinely useful — specifically the registration response check.
+
+---
+
 ## What I did not use AI for
 
 - The content of `DECISIONS.md` — I wrote the reasoning myself. Claude drafted a structure but the architectural judgements (why POM over inline selectors, why single-worker, the CI note) came from my own experience.

@@ -26,6 +26,8 @@ import {
   TagsResponse,
 } from './types';
 
+// API_URL is read from .env (via dotenv in playwright.config.ts) or falls back
+// to the default local address. Override in .env for staging/other environments.
 const API_BASE = process.env.API_URL ?? 'http://localhost:3000/api';
 
 export class ApiClient {

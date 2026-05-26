@@ -12,11 +12,19 @@
     "test:comments": "playwright test --grep @comments",
     "test:favourites": "playwright test --grep @favourites",
     "test:feed": "playwright test --grep @feed",
-    "report": "playwright show-report"
+    "test:smoke": "playwright test --grep @smoke",
+    "report": "playwright show-report",
+    "lint": "eslint lib tests global-setup.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
     "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.60.0",
+    "@typescript-eslint/parser": "^8.60.0",
+    "eslint": "^10.4.0",
     "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
   }
 }

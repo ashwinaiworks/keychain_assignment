@@ -74,6 +74,30 @@ Six decisions that shaped the framework. For each: what I chose, what I rejected
 
 ---
 
+## 7. dotenv for environment configuration over hardcoded URLs
+
+**Chosen:** `dotenv` loaded in `playwright.config.ts`. `BASE_URL` and `API_URL` are read from `.env` at runtime, falling back to `localhost` defaults. `.env.example` is committed; `.env` is git-ignored.
+
+**Rejected:** Hardcoding `localhost:4101` and `localhost:3000` throughout the codebase. Hardcoded URLs make it impossible to point the suite at a staging environment without touching source files. An agent adding a new test would copy the hardcoded URL rather than using the config.
+
+**Rejected also:** A custom config module (`lib/config.ts` that reads env vars). `dotenv` + Playwright's built-in `baseURL` is the standard pattern — no custom abstraction needed.
+
+**What would flip it:** Multiple named environments (local, staging, prod) managed simultaneously. At that point a `.env.local` / `.env.staging` convention or a dedicated config package would make switching environments explicit rather than relying on overwriting a single `.env`.
+
+---
+
+## 8. ESLint with `@typescript-eslint` for agent-generated code safety
+
+**Chosen:** ESLint with three targeted rules: `no-floating-promises` (catches missing `await`), `no-explicit-any` (keeps types honest), `no-unused-vars` (catches leftover imports). Run via `npm run lint`.
+
+**Rejected:** No linting. The most common mistake in agent-generated async test code is a missing `await` on a Playwright action — the test passes silently but doesn't actually wait for the action. A lint rule catches this before the test even runs.
+
+**Rejected also:** Prettier for formatting. Formatting is a personal preference and adds friction without improving correctness. The three ESLint rules above are correctness rules, not style rules.
+
+**What would flip it:** A team with a shared style guide already enforced via Prettier. In that case, add Prettier alongside ESLint rather than instead of it.
+
+---
+
 ## Out of scope note: CI/CD
 
 I'd add a GitHub Actions workflow with a single job: install Conduit, start it in the background, run `npm test`, upload the Playwright HTML report as an artifact. The Conduit app's `npm start` is blocking by default so the job would need a small wrapper (`npm start &` + a wait-for-port step before running tests). I kept this out of the submission because it requires knowledge of where the Conduit repo lives relative to the CI runner — an assumption I didn't want to encode without a real deployment target.

@@ -10,7 +10,7 @@ import { ArticleFactory } from '../../lib/factories/article.factory';
 // ---------------------------------------------------------------------------
 
 test.describe('Home page', { tag: ['@feed', '@ui'] }, () => {
-  test('shows the Conduit banner for unauthenticated visitors', async ({ page }) => {
+  test('shows the Conduit banner for unauthenticated visitors', { tag: '@smoke' }, async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     // Banner is shown to guests only

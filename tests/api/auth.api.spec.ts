@@ -7,15 +7,17 @@ import { UserFactory } from '../../lib/factories/user.factory';
 // ---------------------------------------------------------------------------
 
 test.describe('POST /api/users — registration', { tag: ['@auth', '@api'] }, () => {
-  test('registers a new user and returns a token', async ({ api }) => {
+  test('registers a new user and returns a token', { tag: '@smoke' }, async ({ api }) => {
     const credentials = UserFactory.buildCredentials();
 
     const { user } = await api.register({ user: credentials });
 
-    expect(user.email).toBe(credentials.email);
-    expect(user.username).toBe(credentials.username);
-    expect(user.token).toBeTruthy();
-    expect(typeof user.token).toBe('string');
+    // expect.soft() collects all failures rather than stopping at the first —
+    // useful here because we want to see every missing field in one run.
+    expect.soft(user.email).toBe(credentials.email);
+    expect.soft(user.username).toBe(credentials.username);
+    expect.soft(user.token).toBeTruthy();
+    expect.soft(typeof user.token).toBe('string');
   });
 
   test('returns an error when email is already taken', async ({ api }) => {
@@ -60,7 +62,7 @@ test.describe('POST /api/users — registration', { tag: ['@auth', '@api'] }, ()
 });
 
 test.describe('POST /api/users/login', { tag: ['@auth', '@api'] }, () => {
-  test('logs in with valid credentials and returns a token', async ({ api }) => {
+  test('logs in with valid credentials and returns a token', { tag: '@smoke' }, async ({ api }) => {
     const { credentials } = await UserFactory.create(api);
 
     const { user } = await api.login({

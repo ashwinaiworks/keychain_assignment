@@ -1,6 +1,7 @@
 import { test, expect } from '../fixtures';
 import { ApiResponseError } from '../../lib/api/client';
 import { ArticleFactory } from '../../lib/factories/article.factory';
+import { CommentFactory } from '../../lib/factories/comment.factory';
 import { UserFactory } from '../../lib/factories/user.factory';
 
 // ---------------------------------------------------------------------------
@@ -8,7 +9,7 @@ import { UserFactory } from '../../lib/factories/user.factory';
 // ---------------------------------------------------------------------------
 
 test.describe('POST /api/articles — create', { tag: ['@articles', '@api'] }, () => {
-  test('creates an article and returns it with a slug', async ({ authApi }) => {
+  test('creates an article and returns it with a slug', { tag: '@smoke' }, async ({ authApi }) => {
     const fields = ArticleFactory.buildFields();
 
     const { article } = await authApi.client.createArticle({ article: fields });
@@ -64,15 +65,20 @@ test.describe('PUT /api/articles/:slug — update', { tag: ['@articles', '@api']
   });
 
   test('another user cannot update someone else\'s article', async ({ authApi }) => {
-    const { article } = await ArticleFactory.create(authApi.client);
+    const { article } = await test.step('create article as user A', () =>
+      ArticleFactory.create(authApi.client),
+    );
 
-    // Create a second user and try to update the first user's article
     const otherApi = new (await import('../../lib/api/client')).ApiClient();
-    await UserFactory.createAndLogin(otherApi);
+    await test.step('create and authenticate user B', () =>
+      UserFactory.createAndLogin(otherApi),
+    );
 
-    const error = await otherApi
-      .updateArticle(article.slug, { article: { title: 'Hijacked' } })
-      .catch((e) => e);
+    const error = await test.step('user B attempts to update user A\'s article', () =>
+      otherApi
+        .updateArticle(article.slug, { article: { title: 'Hijacked' } })
+        .catch((e) => e),
+    );
 
     expect(error).toBeInstanceOf(ApiResponseError);
     expect((error as ApiResponseError).status).toBe(403);
@@ -114,23 +120,20 @@ test.describe('GET /api/articles — list and filter', { tag: ['@articles', '@ap
 });
 
 test.describe('Comments', { tag: ['@comments', '@api'] }, () => {
-  test('adds a comment to an article', async ({ authApi }) => {
+  test('adds a comment to an article', { tag: '@smoke' }, async ({ authApi }) => {
     const { article } = await ArticleFactory.create(authApi.client);
-    const commentBody = 'This is a test comment.';
+    const body = CommentFactory.buildBody();
 
-    const { comment } = await authApi.client.addComment(article.slug, {
-      comment: { body: commentBody },
-    });
+    const { comment } = await CommentFactory.create(authApi.client, article.slug, body);
 
     expect(comment.id).toBeTruthy();
-    expect(comment.body).toBe(commentBody);
+    expect(comment.body).toBe(body);
     expect(comment.author.username).toBe(authApi.user.user.username);
   });
 
   test('lists comments on an article', async ({ authApi }) => {
     const { article } = await ArticleFactory.create(authApi.client);
-    await authApi.client.addComment(article.slug, { comment: { body: 'First comment' } });
-    await authApi.client.addComment(article.slug, { comment: { body: 'Second comment' } });
+    await CommentFactory.createMany(authApi.client, article.slug, 2);
 
     const { comments } = await authApi.client.getComments(article.slug);
 
@@ -138,20 +141,28 @@ test.describe('Comments', { tag: ['@comments', '@api'] }, () => {
   });
 
   test('deletes a comment', async ({ authApi }) => {
-    const { article } = await ArticleFactory.create(authApi.client);
-    const { comment } = await authApi.client.addComment(article.slug, {
-      comment: { body: 'To be deleted' },
-    });
+    const { article } = await test.step('create article', () =>
+      ArticleFactory.create(authApi.client),
+    );
 
-    await authApi.client.deleteComment(article.slug, comment.id);
+    const { comment } = await test.step('add comment via factory', () =>
+      CommentFactory.create(authApi.client, article.slug),
+    );
 
-    const { comments } = await authApi.client.getComments(article.slug);
+    await test.step('delete comment', () =>
+      authApi.client.deleteComment(article.slug, comment.id),
+    );
+
+    const { comments } = await test.step('verify comment is gone', () =>
+      authApi.client.getComments(article.slug),
+    );
+
     expect(comments.find((c) => c.id === comment.id)).toBeUndefined();
   });
 });
 
 test.describe('Favourites', { tag: ['@favourites', '@api'] }, () => {
-  test('favourites an article and increments the count', async ({ authApi }) => {
+  test('favourites an article and increments the count', { tag: '@smoke' }, async ({ authApi }) => {
     const { article } = await ArticleFactory.create(authApi.client);
 
     const { article: faved } = await authApi.client.favouriteArticle(article.slug);
@@ -161,10 +172,17 @@ test.describe('Favourites', { tag: ['@favourites', '@api'] }, () => {
   });
 
   test('unfavourites an article and decrements the count', async ({ authApi }) => {
-    const { article } = await ArticleFactory.create(authApi.client);
-    await authApi.client.favouriteArticle(article.slug);
+    const { article } = await test.step('create article', () =>
+      ArticleFactory.create(authApi.client),
+    );
 
-    const { article: unfaved } = await authApi.client.unfavouriteArticle(article.slug);
+    await test.step('favourite it', () =>
+      authApi.client.favouriteArticle(article.slug),
+    );
+
+    const { article: unfaved } = await test.step('unfavourite it', () =>
+      authApi.client.unfavouriteArticle(article.slug),
+    );
 
     expect(unfaved.favorited).toBe(false);
     expect(unfaved.favoritesCount).toBe(0);
