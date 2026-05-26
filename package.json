@@ -1,0 +1,17 @@
+{
+  "name": "conduit-test-framework",
+  "version": "1.0.0",
+  "description": "Agentic-first Playwright test framework for the Conduit RealWorld app",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test tests/api",
+    "test:ui": "playwright test tests/ui",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  }
+}
