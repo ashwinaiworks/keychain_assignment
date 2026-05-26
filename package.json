@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Agentic-first Playwright test framework for the Conduit RealWorld app",
   "scripts": {
-    "test": "playwright test",
+    "test": "playwright test && node scripts/generate-dashboard.js",
     "test:api": "playwright test tests/api",
     "test:ui": "playwright test tests/ui",
     "test:headed": "playwright test --headed",
