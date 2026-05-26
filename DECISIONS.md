@@ -161,3 +161,33 @@ How it works under the hood:
 The open-source library `@zerostep/playwright` already implements this pattern as a drop-in for Playwright. Alternatively it can be built in-house by wiring Playwright's screenshot API directly to an LLM API.
 
 The trade-off: every test action incurs an LLM API call, which adds latency and cost per test run. For a stable application like Conduit, semantic locators (`getByRole`, `getByPlaceholder`) are faster and free. The right trigger for this approach is a UI that changes so frequently that locator maintenance is costing the team more time than the LLM API cost — typically rapid-iteration product teams shipping UI changes multiple times a week.
+
+**6. Visual regression testing**
+Use Playwright's built-in `toHaveScreenshot()` to catch unintended UI changes — layout shifts, colour changes, broken renders. Open-source alternative: Backstop.js. Trigger: when pixel-level UI correctness becomes a product requirement.
+
+**7. Contract testing**
+Use Pact to validate the API contract between frontend and backend independently. Catches breaking API changes before any UI test runs. Trigger: multiple teams or services consuming the same API.
+
+**8. Mutation testing**
+Use Stryker to intentionally introduce bugs into the app code and verify the test suite catches them. Measures test suite quality, not just coverage percentage. Trigger: when test coverage numbers look good but confidence is low.
+
+**9. Accessibility testing**
+Integrate `axe-core` with Playwright (`@axe-core/playwright`) to run automated a11y checks alongside every UI test. Catches WCAG violations without a separate tool or manual audit. Trigger: any product with a compliance requirement or public-facing UI.
+
+**10. API mocking / service virtualisation**
+Use Playwright's built-in `page.route()` to intercept and mock third-party API calls. Makes UI tests deterministic and removes dependency on external services. Trigger: tests flaking due to slow or unreliable third-party dependencies.
+
+**11. Test impact analysis**
+Only run tests related to the files changed in a PR, not the full suite. Tools like Jest's `--changedSince` or custom mapping of source files to spec files. Trigger: CI run time exceeds 10 minutes and slows down PR feedback.
+
+**12. Chaos / negative path testing**
+Systematically test app behaviour when the API returns 500s, timeouts, or malformed responses — using `page.route()` to inject failures. Verifies graceful degradation, not just the happy path. Trigger: production incidents caused by unhandled API errors.
+
+**13. Performance budgets in tests**
+Assert page load time stays under a defined threshold using Playwright's `performance.timing` API. Catches performance regressions introduced by new code before they reach production. Trigger: performance is a product SLA or a frequent source of user complaints.
+
+**14. Test data management at scale**
+Replace API-based factories with a dedicated test data service that provisions fully isolated datasets per test run. Faster than creating data via API calls and supports parallel execution cleanly. Trigger: test suite exceeds 500 tests or data setup becomes a bottleneck.
+
+**15. Observability integration**
+Emit test run metrics — pass rate, duration, flake rate per test — to a monitoring tool like Datadog, Grafana, or Prometheus. Gives the team real-time visibility into test health across sprints, not just per-run. Trigger: test reliability becomes a team-level KPI.
