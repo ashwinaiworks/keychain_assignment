@@ -78,6 +78,18 @@ Specify compilerOption '"ignoreDeprecations": "6.0"' to silence this error.
 
 ---
 
+## 6. Test tagging system
+
+**Prompt (paraphrased):** Add a tagging system so test cases can be tagged by feature name (login, articles, etc.) and individual tags can be called to run specific cases.
+
+**What Claude planned first:** Correctly identified Playwright's native `{ tag: [...] }` option as the right approach (available since v1.42, we're on 1.60). Proposed two tag types per describe block — feature tag (`@auth`, `@articles`, etc.) and layer tag (`@api`, `@ui`) — with `npm run test:<tag>` convenience scripts.
+
+**What Claude implemented:** Added tags to all `test.describe()` blocks across 5 spec files, updated `package.json` with 5 new tag-based scripts, verified tag filtering with `--grep @auth`, `--grep @comments`, `--grep @favourites`. All 37 tests continued to pass.
+
+**My input:** The decision to use two tag types (feature + layer) rather than just one was mine — it gives more filtering flexibility without complicating the taxonomy.
+
+---
+
 ## What I did not use AI for
 
 - The content of `DECISIONS.md` — I wrote the reasoning myself. Claude drafted a structure but the architectural judgements (why POM over inline selectors, why single-worker, the CI note) came from my own experience.

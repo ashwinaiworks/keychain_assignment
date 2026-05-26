@@ -1,6 +1,6 @@
 # Architecture Decisions
 
-Five decisions that shaped the framework. For each: what I chose, what I rejected, and what would flip it.
+Six decisions that shaped the framework. For each: what I chose, what I rejected, and what would flip it.
 
 ---
 
@@ -59,6 +59,18 @@ Five decisions that shaped the framework. For each: what I chose, what I rejecte
 **Rejected also:** `fullyParallel: true`. The app runs on a single SQLite file. Parallel tests that write to the same database without isolation strategies produce flaky ordering-dependent failures. Single-worker serial execution is slower but reliable. A migration to parallel execution would require either per-test database snapshots or a proper test-database provisioning layer.
 
 **What would flip it:** A real deployed environment (not localhost SQLite) with a proper test database per worker. At that point, parallel execution is the right default and multi-browser coverage becomes feasible.
+
+---
+
+## 6. Playwright native tags over custom label conventions
+
+**Chosen:** Playwright's built-in `{ tag: [...] }` option on `test.describe()` blocks, using two tag types per block — a feature tag (`@auth`, `@articles`, `@comments`, `@favourites`, `@feed`) and a layer tag (`@api`, `@ui`). Corresponding `npm run test:<tag>` scripts expose the most common filters without needing to remember the `--grep` flag.
+
+**Rejected:** Encoding tags in test title strings (e.g. `test('[auth] registers a user', ...)`). Title-based tagging is fragile — a rename breaks the filter silently and it clutters the test output. Playwright's first-class tag support was added in v1.42 and is the idiomatic approach for our version (1.60).
+
+**Rejected also:** A separate test registry file mapping tags to spec files. An external registry drifts out of sync with the actual tests. Tags on the `describe` block are co-located with the tests they describe, so they stay accurate.
+
+**What would flip it:** If the team needed tags that cut across multiple features (e.g. `@smoke`, `@regression`, `@critical`) rather than just feature + layer groupings. At that point individual `test()` calls would need their own tags and a more formal tagging taxonomy (documented in CLAUDE.md) would be necessary. The infrastructure change would be minimal — just add more tag values — but the governance around who decides what's `@smoke` would need a written policy.
 
 ---
 

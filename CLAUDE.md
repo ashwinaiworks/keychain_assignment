@@ -109,7 +109,26 @@ test.describe('POST /api/articles — create', () => {
 });
 ```
 
-### 7. Assert on the HTTP status, not on error message strings
+### 7. Tag every new `test.describe` block with a feature tag and a layer tag
+
+Every describe block must carry exactly two tags — one feature tag and one layer tag.
+
+```ts
+// ✅ correct
+test.describe('Comments', { tag: ['@comments', '@api'] }, () => { ... });
+test.describe('Login flow', { tag: ['@auth', '@ui'] }, () => { ... });
+
+// ❌ wrong — missing tags, test won't be reachable via npm run test:<feature>
+test.describe('Comments', () => { ... });
+```
+
+**Available feature tags:** `@auth` · `@articles` · `@comments` · `@favourites` · `@feed`
+
+**Layer tags:** `@api` (no browser) · `@ui` (browser test)
+
+Add a new feature tag if you are covering a new domain (e.g. `@profile`, `@follows`). Document it in this file under the tag table below.
+
+### 8. Assert on the HTTP status, not on error message strings
 
 ```ts
 // ✅ correct
@@ -206,9 +225,20 @@ Group methods into three sections: navigation (`goto`), actions, assertions (`ex
 ## Running the tests
 
 ```bash
-npm test              # all tests
-npm run test:api      # API tests only
-npm run test:ui       # UI tests only
-npm run test:headed   # watch mode with browser visible
-npm run report        # open the HTML report
+npm test                 # all tests
+npm run test:api         # API tests only (by folder)
+npm run test:ui          # UI tests only (by folder)
+npm run test:headed      # UI tests with browser visible
+npm run test:auth        # @auth tag — registration, login, logout
+npm run test:articles    # @articles tag — article CRUD
+npm run test:comments    # @comments tag — comments
+npm run test:favourites  # @favourites tag — favourites
+npm run test:feed        # @feed tag — home page and global feed
+npm run report           # open the HTML report
+```
+
+You can also combine tags ad-hoc without a script:
+```bash
+npx playwright test --grep "@auth|@feed"   # run auth OR feed tests
+npx playwright test --grep-invert @ui      # skip all UI tests
 ```

@@ -10,7 +10,7 @@ import { ArticleFactory } from '../../lib/factories/article.factory';
 // author-only actions like editing and deleting.
 // ---------------------------------------------------------------------------
 
-test.describe('Create article', () => {
+test.describe('Create article', { tag: ['@articles', '@ui'] }, () => {
   test('logged-in user can publish a new article', async ({ loggedInPage }) => {
     const { page } = loggedInPage;
     const editor = new EditorPage(page);
@@ -29,7 +29,7 @@ test.describe('Create article', () => {
   });
 });
 
-test.describe('View article', () => {
+test.describe('View article', { tag: ['@articles', '@ui'] }, () => {
   test('article detail page shows title, body, and author', async ({ page, authApi }) => {
     const { article } = await ArticleFactory.create(authApi.client);
 
@@ -41,7 +41,7 @@ test.describe('View article', () => {
   });
 });
 
-test.describe('Edit article', () => {
+test.describe('Edit article', { tag: ['@articles', '@ui'] }, () => {
   test('author can edit their article and see the updated title', async ({ loggedInPage, loggedInApi }) => {
     const { page } = loggedInPage;
     // Create the article as conduit_tester so the browser session is the author
@@ -59,7 +59,7 @@ test.describe('Edit article', () => {
   });
 });
 
-test.describe('Delete article', () => {
+test.describe('Delete article', { tag: ['@articles', '@ui'] }, () => {
   test('author sees a delete button on their article page', async ({ loggedInPage, loggedInApi }) => {
     const { page } = loggedInPage;
     // Create the article as conduit_tester so the delete button is visible

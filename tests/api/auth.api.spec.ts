@@ -6,7 +6,7 @@ import { UserFactory } from '../../lib/factories/user.factory';
 // Auth API — registration and login
 // ---------------------------------------------------------------------------
 
-test.describe('POST /api/users — registration', () => {
+test.describe('POST /api/users — registration', { tag: ['@auth', '@api'] }, () => {
   test('registers a new user and returns a token', async ({ api }) => {
     const credentials = UserFactory.buildCredentials();
 
@@ -59,7 +59,7 @@ test.describe('POST /api/users — registration', () => {
   });
 });
 
-test.describe('POST /api/users/login', () => {
+test.describe('POST /api/users/login', { tag: ['@auth', '@api'] }, () => {
   test('logs in with valid credentials and returns a token', async ({ api }) => {
     const { credentials } = await UserFactory.create(api);
 

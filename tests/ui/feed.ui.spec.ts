@@ -9,7 +9,7 @@ import { ArticleFactory } from '../../lib/factories/article.factory';
 // Guest and logged-in states use nav.navbar as the primary reliable element.
 // ---------------------------------------------------------------------------
 
-test.describe('Home page', () => {
+test.describe('Home page', { tag: ['@feed', '@ui'] }, () => {
   test('shows the Conduit banner for unauthenticated visitors', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
@@ -38,7 +38,7 @@ test.describe('Home page', () => {
   });
 });
 
-test.describe('Global feed', () => {
+test.describe('Global feed', { tag: ['@feed', '@ui'] }, () => {
   test('shows published articles in the global feed', async ({ page, authApi }) => {
     await ArticleFactory.create(authApi.client);
 

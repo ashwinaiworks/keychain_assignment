@@ -7,6 +7,11 @@
     "test:api": "playwright test tests/api",
     "test:ui": "playwright test tests/ui",
     "test:headed": "playwright test --headed",
+    "test:auth": "playwright test --grep @auth",
+    "test:articles": "playwright test --grep @articles",
+    "test:comments": "playwright test --grep @comments",
+    "test:favourites": "playwright test --grep @favourites",
+    "test:feed": "playwright test --grep @feed",
     "report": "playwright show-report"
   },
   "devDependencies": {

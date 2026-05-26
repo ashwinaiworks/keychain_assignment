@@ -8,7 +8,7 @@ import { UserFactory } from '../../lib/factories/user.factory';
 // Auth UI — registration, login, logout
 // ---------------------------------------------------------------------------
 
-test.describe('Registration flow', () => {
+test.describe('Registration flow', { tag: ['@auth', '@ui'] }, () => {
   test('new user can register and lands on the home feed', async ({ page }) => {
     const credentials = UserFactory.buildCredentials();
     const registerPage = new RegisterPage(page);
@@ -43,7 +43,7 @@ test.describe('Registration flow', () => {
   });
 });
 
-test.describe('Login flow', () => {
+test.describe('Login flow', { tag: ['@auth', '@ui'] }, () => {
   test('existing user can log in and sees their username in the nav', async ({ page, api }) => {
     const { credentials, user } = await UserFactory.create(api);
 
@@ -73,7 +73,7 @@ test.describe('Login flow', () => {
   });
 });
 
-test.describe('Logout flow', () => {
+test.describe('Logout flow', { tag: ['@auth', '@ui'] }, () => {
   test('logged-in user can log out and nav returns to signed-out state', async ({ loggedInPage }) => {
     const { page } = loggedInPage;
     const homePage = new HomePage(page);

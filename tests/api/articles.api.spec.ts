@@ -7,7 +7,7 @@ import { UserFactory } from '../../lib/factories/user.factory';
 // Articles API — CRUD, comments, favourites
 // ---------------------------------------------------------------------------
 
-test.describe('POST /api/articles — create', () => {
+test.describe('POST /api/articles — create', { tag: ['@articles', '@api'] }, () => {
   test('creates an article and returns it with a slug', async ({ authApi }) => {
     const fields = ArticleFactory.buildFields();
 
@@ -32,7 +32,7 @@ test.describe('POST /api/articles — create', () => {
   });
 });
 
-test.describe('GET /api/articles/:slug — read', () => {
+test.describe('GET /api/articles/:slug — read', { tag: ['@articles', '@api'] }, () => {
   test('fetches an article by slug', async ({ authApi }) => {
     const { article: created } = await ArticleFactory.create(authApi.client);
 
@@ -50,7 +50,7 @@ test.describe('GET /api/articles/:slug — read', () => {
   });
 });
 
-test.describe('PUT /api/articles/:slug — update', () => {
+test.describe('PUT /api/articles/:slug — update', { tag: ['@articles', '@api'] }, () => {
   test('author can update their article', async ({ authApi }) => {
     const { article } = await ArticleFactory.create(authApi.client);
     const newTitle = `Updated ${Date.now()}`;
@@ -79,7 +79,7 @@ test.describe('PUT /api/articles/:slug — update', () => {
   });
 });
 
-test.describe('DELETE /api/articles/:slug', () => {
+test.describe('DELETE /api/articles/:slug', { tag: ['@articles', '@api'] }, () => {
   test('author can delete their own article', async ({ authApi }) => {
     const { article } = await ArticleFactory.create(authApi.client);
 
@@ -91,7 +91,7 @@ test.describe('DELETE /api/articles/:slug', () => {
   });
 });
 
-test.describe('GET /api/articles — list and filter', () => {
+test.describe('GET /api/articles — list and filter', { tag: ['@articles', '@api'] }, () => {
   test('returns a list of articles', async ({ api }) => {
     const { articles, articlesCount } = await api.getArticles({ limit: 5 });
 
@@ -113,7 +113,7 @@ test.describe('GET /api/articles — list and filter', () => {
   });
 });
 
-test.describe('Comments', () => {
+test.describe('Comments', { tag: ['@comments', '@api'] }, () => {
   test('adds a comment to an article', async ({ authApi }) => {
     const { article } = await ArticleFactory.create(authApi.client);
     const commentBody = 'This is a test comment.';
@@ -150,7 +150,7 @@ test.describe('Comments', () => {
   });
 });
 
-test.describe('Favourites', () => {
+test.describe('Favourites', { tag: ['@favourites', '@api'] }, () => {
   test('favourites an article and increments the count', async ({ authApi }) => {
     const { article } = await ArticleFactory.create(authApi.client);
 
