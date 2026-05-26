@@ -121,3 +121,25 @@ Six decisions that shaped the framework. For each: what I chose, what I rejected
 ## Out of scope note: CI/CD
 
 I'd add a GitHub Actions workflow with a single job: install Conduit, start it in the background, run `npm test`, upload the Playwright HTML report as an artifact. The Conduit app's `npm start` is blocking by default so the job would need a small wrapper (`npm start &` + a wait-for-port step before running tests). I kept this out of the submission because it requires knowledge of where the Conduit repo lives relative to the CI runner — an assumption I didn't want to encode without a real deployment target.
+
+---
+
+## Future scaling opportunities
+
+Areas where this framework can be extended as the team and application grow:
+
+**1. Self-healing locators**
+The current framework uses Playwright's semantic locators (`getByRole`, `getByPlaceholder`, `getByText`) which are inherently resilient — they target what the user sees on screen rather than DOM structure, so most UI refactors don't break them. The gap is when label text itself changes (e.g. "Sign in" renamed to "Login") — semantic locators fail at that point with no recovery.
+
+The open-source path forward is [Healenium](https://healenium.io/) with its `healenium-playwright` adapter. It stores a snapshot of the last known good DOM tree per locator and, on failure, computes a similarity score against the current DOM to find the closest match automatically. The healed locator is logged so engineers can update the source at their own pace rather than being blocked by a broken test.
+
+The trade-off: Healenium requires a Docker-hosted backend (Spring Boot + PostgreSQL) running alongside tests, which adds infrastructure overhead. The right trigger for adoption is when the UI changes frequently enough that locator maintenance is costing the team meaningful time — at that point the operational cost of Docker is smaller than the manual fix cost.
+
+**2. Parallel execution**
+The current setup runs single-worker serial. Moving to `fullyParallel: true` requires per-test database isolation — either a Docker container with a fresh SQLite snapshot per worker, or a test database provisioning layer. Once that exists, parallel execution is the natural next step and run times drop proportionally with worker count.
+
+**3. Cross-browser coverage**
+Chromium-only is correct for this project. Adding Firefox and WebKit becomes worthwhile once the app is deployed to a real environment with a stable test database — at that point cross-browser failures represent real product bugs rather than environmental noise.
+
+**4. Historical test reporting**
+The current dashboard shows results for the most recent run only. Adding trend tracking (pass rate over time, flake frequency per test) requires persisting `test-results/results.json` across runs — either committed to a `reports/` branch in git, stored in CI artifacts, or pushed to a lightweight time-series store. A Grafana dashboard over those results would give the team visibility into test health over sprints, not just per-run.
